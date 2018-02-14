@@ -151,4 +151,19 @@ class NGram(LanguageModel):
 
         sent -- the sentence as a list of tokens.
         """
-        return 0# log(self.sent_prob(sent), 2)
+        sent += ['</s>']
+        prev_tokens = tuple(sent[:self._n-1])
+
+        logprob = math.log2(self._initial_probs[prev_tokens])
+        for i in range(self._n-1, len(sent)):
+            token = sent[i]
+            next_prob = self.cond_prob(token, prev_tokens)
+            if next_prob == 0:
+                logprob = float("-inf")
+                break
+
+            logprob += math.log2(next_prob)
+
+            if self._n > 1:
+                prev_tokens = prev_tokens[1:] + (token,)
+        return logprob
