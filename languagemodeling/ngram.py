@@ -75,22 +75,20 @@ class NGram(LanguageModel):
         """
         Los n-1 primeros tokens tengo que rellenarlos
         """
-        for i in range(min(n-1, len(sentence))):
-            ngram = ['<s>'] * (n-(i+1)) + sentence[0:i+1]
-            ngrams.append(tuple(ngram))
+        ngram = ['<s>'] + sentence[0:n-1]
+        ngrams.append(tuple(ngram))
 
         for i in range(max(n-2, 0), len(sentence)-n+1):
             ngrams.append(tuple(sentence[i:i+n]))
 
 
         if n > 1:
-            for i in range(m-n+1, m):
-                ngram = sentence[i:m] + ['</s>'] * (n - (m-i))
-                ngrams.append(tuple(ngram))
+            ngram = sentence[m-(n-1):m] + ['</s>']
+            ngrams.append(tuple(ngram))
         else:
             ngrams.append(('</s>', ))
 
-        nminusonegrams = [ngram[:-1] for ngram in ngrams]
+        nminusonegrams = [ngram[:-1] for ngram in ngrams if ngram != ('<s>',)]
 
         return ngrams, nminusonegrams
 
@@ -139,11 +137,9 @@ class NGram(LanguageModel):
         prev_tokens = tuple(sent[:self._n-1])
 
         prob = self._initial_probs[prev_tokens]
-        probs = [prob]
         for i in range(self._n-1, len(sent)):
             token = sent[i]
             next_prob = self.cond_prob(token, prev_tokens)
-            probs.append(next_prob)
             prob *= next_prob
 
             if self._n > 1:
@@ -155,4 +151,4 @@ class NGram(LanguageModel):
 
         sent -- the sentence as a list of tokens.
         """
-        # WORK HERE!!
+        return 0# log(self.sent_prob(sent), 2)
