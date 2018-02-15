@@ -2,6 +2,8 @@
 from collections import defaultdict
 import math
 
+BEGIN_MARKER = '<s>'
+END_MARKER = '</s>'
 
 class LanguageModel(object):
 
@@ -55,15 +57,6 @@ class NGram(LanguageModel):
             count[ngram] += 1
 
         self._count = count
-        """
-        Probabilidades de tokens iniciales:
-        """
-        self._initial_probs = defaultdict(float)
-
-        for sent in sents:
-            gram = tuple(sent[:n-1])
-            self._initial_probs[gram] += 1 / len(sents)
-
 
     def _generate_ngrams_for_sentence(self, n, sentence):
         """
@@ -75,8 +68,9 @@ class NGram(LanguageModel):
         """
         Los n-1 primeros tokens tengo que rellenarlos
         """
-        ngram = ['<s>'] + sentence[0:n-1]
-        ngrams.append(tuple(ngram))
+        for i in range(min(n-1, len(sentence))):
+           ngram = ['<s>'] * (n-(i+1)) + sentence[0:i+1]
+           ngrams.append(tuple(ngram))
 
         for i in range(max(n-2, 0), len(sentence)-n+1):
             ngrams.append(tuple(sentence[i:i+n]))
@@ -133,11 +127,11 @@ class NGram(LanguageModel):
 
         sent -- the sentence as a list of tokens.
         """
-        sent += ['</s>']
-        prev_tokens = tuple(sent[:self._n-1])
+        sent += [END_MARKER]
+        prev_tokens = tuple([BEGIN_MARKER] * (self._n-1))
 
-        prob = self._initial_probs[prev_tokens]
-        for i in range(self._n-1, len(sent)):
+        prob = 1
+        for i in range(0, len(sent)):
             token = sent[i]
             next_prob = self.cond_prob(token, prev_tokens)
             prob *= next_prob
@@ -151,10 +145,10 @@ class NGram(LanguageModel):
 
         sent -- the sentence as a list of tokens.
         """
-        sent += ['</s>']
-        prev_tokens = tuple(sent[:self._n-1])
+        sent += [END_MARKER]
+        prev_tokens = tuple([BEGIN_MARKER] * (self._n-1))
 
-        logprob = math.log2(self._initial_probs[prev_tokens])
+        logprob = 0
         for i in range(self._n-1, len(sent)):
             token = sent[i]
             next_prob = self.cond_prob(token, prev_tokens)
