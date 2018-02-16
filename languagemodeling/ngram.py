@@ -53,15 +53,15 @@ class NGram(LanguageModel):
         assert n > 0
         self._n = n
 
-        ngrams, nminusonegrams = self._generate_ngrams(n, sents)
+        ngrams = self._generate_ngrams(n, sents)
         relative_counts = defaultdict(lambda: defaultdict(float))
         self._count = defaultdict(int)
 
         for ngram in ngrams:
             prev_tokens, token = ngram[:-1], ngram[-1]
-            relative_counts[prev_tokens][token] += 1
             self._count[ngram] += 1
             self._count[ngram[:-1]] += 1
+            relative_counts[prev_tokens][token] += 1
 
         if n > 1:
             self._probs = pd.DataFrame(relative_counts)
@@ -97,9 +97,7 @@ class NGram(LanguageModel):
         else:
             ngrams.append(('</s>', ))
 
-        nminusonegrams = [ngram[:-1] for ngram in ngrams if ngram != ('<s>',)]
-
-        return ngrams, nminusonegrams
+        return ngrams
 
     def _generate_ngrams(self, n, sents):
         """
@@ -108,10 +106,9 @@ class NGram(LanguageModel):
         ngrams, nminusonegrams = [], []
 
         for sent in sents:
-            ng, nminusoneg = self._generate_ngrams_for_sentence(n, sent)
+            ng = self._generate_ngrams_for_sentence(n, sent)
             ngrams += ng
-            nminusonegrams += nminusoneg
-        return ngrams, nminusonegrams
+        return ngrams
 
     def count(self, tokens):
         """Count for an n-gram or (n-1)-gram.
