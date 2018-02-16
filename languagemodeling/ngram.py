@@ -149,7 +149,7 @@ class NGram(LanguageModel):
         prev_tokens = tuple([BEGIN_MARKER] * (self._n-1))
 
         logprob = 0
-        for i in range(self._n-1, len(sent)):
+        for i in range(0, len(sent)):
             token = sent[i]
             next_prob = self.cond_prob(token, prev_tokens)
             if next_prob == 0:
