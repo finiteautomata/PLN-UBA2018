@@ -1,9 +1,12 @@
 # https://docs.python.org/3/library/collections.html
 from collections import defaultdict
 import math
+import pandas as pd
 
 BEGIN_MARKER = '<s>'
 END_MARKER = '</s>'
+
+EMPTY_TOKEN = (END_MARKER, BEGIN_MARKER)
 
 class LanguageModel(object):
 
@@ -51,12 +54,25 @@ class NGram(LanguageModel):
         self._n = n
 
         ngrams, nminusonegrams = self._generate_ngrams(n, sents)
-        count = defaultdict(int)
+        relative_counts = defaultdict(lambda: defaultdict(float))
+        self._count = defaultdict(int)
 
-        for ngram in ngrams + nminusonegrams:
-            count[ngram] += 1
+        for ngram in ngrams:
+            prev_tokens, token = ngram[:-1], ngram[-1]
+            relative_counts[prev_tokens][token] += 1
+            self._count[ngram] += 1
+            self._count[ngram[:-1]] += 1
 
-        self._count = count
+        if n > 1:
+            self._probs = pd.DataFrame(relative_counts)
+        else:
+            self._probs = pd.DataFrame({
+                EMPTY_TOKEN: relative_counts[()]
+            })
+
+        self._probs = self._probs.T
+        self._probs = self._probs.div(self._probs.sum(axis=1), axis=0)
+        self._probs[self._probs.isna()] = 0
 
     def _generate_ngrams_for_sentence(self, n, sentence):
         """
@@ -69,12 +85,11 @@ class NGram(LanguageModel):
         Los n-1 primeros tokens tengo que rellenarlos
         """
         for i in range(min(n-1, len(sentence))):
-           ngram = ['<s>'] * (n-(i+1)) + sentence[0:i+1]
-           ngrams.append(tuple(ngram))
+            ngram = ['<s>'] * (n-(i+1)) + sentence[0:i+1]
+            ngrams.append(tuple(ngram))
 
         for i in range(max(n-2, 0), len(sentence)-n+1):
             ngrams.append(tuple(sentence[i:i+n]))
-
 
         if n > 1:
             ngram = sentence[m-(n-1):m] + ['</s>']
@@ -98,7 +113,6 @@ class NGram(LanguageModel):
             nminusonegrams += nminusoneg
         return ngrams, nminusonegrams
 
-
     def count(self, tokens):
         """Count for an n-gram or (n-1)-gram.
 
@@ -112,15 +126,13 @@ class NGram(LanguageModel):
         token -- the token.
         prev_tokens -- the previous n-1 tokens (optional only if n = 1).
         """
-        prev_tokens = prev_tokens or ()
-        num = self._count.get(prev_tokens + (token,), 0)
-        quot = self._count.get(prev_tokens, 0)
+        if prev_tokens is None or prev_tokens == ():
+            prev_tokens = EMPTY_TOKEN
 
-        if quot == 0:
-            return 0
-        else:
-            return num / quot
-        # WORK HERE!!
+        try:
+            return self._probs.loc[prev_tokens][token]
+        except KeyError as e:
+            return .0
 
     def sent_prob(self, sent):
         """Probability of a sentence. Warning: subject to underflow problems.
