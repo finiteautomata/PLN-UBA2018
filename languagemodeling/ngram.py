@@ -55,24 +55,23 @@ class NGram(LanguageModel):
 
         ngrams = self._generate_ngrams(n, sents)
         relative_counts = defaultdict(lambda: defaultdict(float))
-        self._count = defaultdict(int)
+        count = defaultdict(int)
 
         for ngram in ngrams:
             prev_tokens, token = ngram[:-1], ngram[-1]
-            self._count[ngram] += 1
-            self._count[ngram[:-1]] += 1
+            count[ngram] += 1
+            count[ngram[:-1]] += 1
             relative_counts[prev_tokens][token] += 1
 
-        if n > 1:
-            self._probs = pd.DataFrame(relative_counts)
-        else:
-            self._probs = pd.DataFrame({
-                EMPTY_TOKEN: relative_counts[()]
-            })
-        self._probs = self._probs.T
-        self._probs = self._probs.div(self._probs.sum(axis=1), axis=0)
-        self._probs[self._probs.isna()] = 0
-        self._probs = self._probs.to_sparse(fill_value=0.0)
+        self._count = dict(count)
+
+        self._probs = {}
+
+        for prev_token, count_vector in relative_counts.items():
+            total = sum(count_vector.values())
+            self._probs[prev_token] = {}
+            for token, count in count_vector.items():
+                self._probs[prev_token][token] = count / total
 
     def _generate_ngrams_for_sentence(self, n, sentence):
         """
@@ -103,7 +102,7 @@ class NGram(LanguageModel):
         """
         Generar n-gramas a partir de las sentencias
         """
-        ngrams, nminusonegrams = [], []
+        ngrams = []
 
         for sent in sents:
             ng = self._generate_ngrams_for_sentence(n, sent)
@@ -123,12 +122,11 @@ class NGram(LanguageModel):
         token -- the token.
         prev_tokens -- the previous n-1 tokens (optional only if n = 1).
         """
-        if prev_tokens is None or prev_tokens == ():
-            prev_tokens = EMPTY_TOKEN
+        prev_tokens = prev_tokens or ()
 
         try:
-            return self._probs.loc[prev_tokens][token]
-        except Exception as e:
+            return self._probs[prev_tokens][token]
+        except KeyError as e:
             # Uso excepcion porque el sparse tira eso..
             return .0
 

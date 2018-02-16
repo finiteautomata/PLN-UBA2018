@@ -32,8 +32,10 @@ class NGramGenerator(object):
         prev_tokens -- the previous n-1 tokens (optional only if n = 1).
         """
         if not prev_tokens:
-            prev_tokens = EMPTY_TOKEN
+            prev_tokens = ()
 
-        prob_vector = self._model._probs.loc[prev_tokens]
-
-        return np.random.choice(prob_vector.index, p=prob_vector.values)
+        prob_vector = self._model._probs[prev_tokens]
+        return np.random.choice(
+            [*prob_vector.keys()],
+            p=[*prob_vector.values()]
+        )
