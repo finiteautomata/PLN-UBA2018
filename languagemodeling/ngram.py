@@ -69,10 +69,10 @@ class NGram(LanguageModel):
             self._probs = pd.DataFrame({
                 EMPTY_TOKEN: relative_counts[()]
             })
-
         self._probs = self._probs.T
         self._probs = self._probs.div(self._probs.sum(axis=1), axis=0)
         self._probs[self._probs.isna()] = 0
+        self._probs = self._probs.to_sparse(fill_value=0.0)
 
     def _generate_ngrams_for_sentence(self, n, sentence):
         """
@@ -131,7 +131,8 @@ class NGram(LanguageModel):
 
         try:
             return self._probs.loc[prev_tokens][token]
-        except KeyError as e:
+        except Exception as e:
+            # Uso excepcion porque el sparse tira eso..
             return .0
 
     def sent_prob(self, sent):
