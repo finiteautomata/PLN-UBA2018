@@ -1,6 +1,5 @@
-from collections import defaultdict
-import random
-
+import numpy as np
+from .ngram import EMPTY_TOKEN
 
 class NGramGenerator(object):
 
@@ -8,28 +7,22 @@ class NGramGenerator(object):
         """
         model -- n-gram model.
         """
-        self._n = model._n
-
-        # compute the probabilities
-        probs = defaultdict(dict)
-        # WORK HERE!!
-
-        self._probs = dict(probs)
-
-        # sort in descending order for efficient sampling
-        self._sorted_probs = sorted_probs = {}
+        self._model = model
         # WORK HERE!!
 
     def generate_sent(self):
         """Randomly generate a sentence."""
-        n = self._n
+        n = self._model._n
 
         sent = []
         prev_tokens = ['<s>'] * (n - 1)
         token = self.generate_token(tuple(prev_tokens))
+
         while token != '</s>':
-            # WORK HERE!!
-            pass
+            sent.append(token)
+            prev_tokens += [token]
+            prev_tokens = prev_tokens[1:]
+            token = self.generate_token(tuple(prev_tokens))
 
         return sent
 
@@ -38,13 +31,9 @@ class NGramGenerator(object):
 
         prev_tokens -- the previous n-1 tokens (optional only if n = 1).
         """
-        n = self._n
         if not prev_tokens:
-            prev_tokens = ()
-        assert len(prev_tokens) == n - 1
+            prev_tokens = EMPTY_TOKEN
 
-        r = random.random()
-        probs = self._sorted_probs[prev_tokens]
-        # WORK HERE!!
+        prob_vector = self._model._probs.loc[prev_tokens]
 
-        return token
+        return np.random.choice(prob_vector.index, p=prob_vector.values)
