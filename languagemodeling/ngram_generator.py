@@ -34,7 +34,7 @@ class NGramGenerator(object):
         if not prev_tokens:
             prev_tokens = ()
 
-        prob_vector = self._model._probs[prev_tokens]
+        prob_vector = self._model.cond_prob_density(prev_tokens)
         return np.random.choice(
             [*prob_vector.keys()],
             p=[*prob_vector.values()]

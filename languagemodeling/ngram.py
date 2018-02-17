@@ -153,6 +153,13 @@ class NGram(LanguageModel):
                 prev_tokens = prev_tokens[1:] + (token,)
         return prob
 
+    def cond_prob_density(self, prev_tokens):
+        """
+        Returns conditional probability density on prev_tokens
+        """
+
+        return self._probs[prev_tokens]
+
     def sent_log_prob(self, sent):
         """Log-probability of a sentence.
 
@@ -216,10 +223,26 @@ class AddOneNGram(NGram):
             # if prev_tokens not given, assume 0-uple:
             prev_tokens = ()
 
-        num = self.count(prev_tokens + (token,)) + 1
-        denom = self.count(prev_tokens) + self._V
+        default = None
+        try:
+            default = 1 / (self._count[prev_tokens] + self._V)
+            return self._probs[prev_tokens][token]
+        except KeyError as e:
+            return default or (1 / self._V)
 
-        return num / denom
+    def cond_prob_density(self, prev_tokens):
+        """
+        Returns conditional probability density on prev_tokens
+        """
+
+
+        default = 1 / (self.count(prev_tokens) + self._V)
+        ret = {v:default for v in self._voc}
+        try:
+            ret.update(self._probs[prev_tokens])
+        except KeyError as e:
+            pass
+        return ret
 
 class InterpolatedNGram(NGram):
 

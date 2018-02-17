@@ -75,6 +75,19 @@ class TestAddOneNGram(TestCase):
         for token, p in probs.items():
             self.assertAlmostEqual(model.cond_prob(token), p)
 
+    def test_cond_prob_non_seen(self):
+        model = AddOneNGram(2, self.sents)
+
+        prev_tokens = ("gato", )
+        token = "pescado"
+
+        """
+        Tenemos un vocabulario de 9, y gato aparece una sola vez
+        => la probabilidad es (count("gato pescado") + 1) /(count("gato") + V)
+        Es decir, 1/10
+        """
+        self.assertAlmostEqual(model.cond_prob(token, prev_tokens), 0.1)
+
     def test_cond_prob_2gram(self):
         model = AddOneNGram(2, self.sents)
 
