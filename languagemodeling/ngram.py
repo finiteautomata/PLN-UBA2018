@@ -64,9 +64,14 @@ class NGram(LanguageModel):
             relative_counts[prev_tokens][token] += 1
 
         self._count = dict(count)
+        self._generate_probs(relative_counts)
 
+
+    def _generate_probs(self, relative_counts):
+        """
+        Generate probability dictionary from relative counts
+        """
         self._probs = {}
-
         for prev_token, count_vector in relative_counts.items():
             total = sum(count_vector.values())
             self._probs[prev_token] = {}
@@ -178,14 +183,22 @@ class AddOneNGram(NGram):
         n -- order of the model.
         sents -- list of sentences, each one being a list of tokens.
         """
-        # call superclass to compute counts
+        self._voc = voc = set(tok for sent in sents for tok in sent)
+        self._voc.add(END_MARKER)
+        self._V = len(voc)
         super().__init__(n, sents)
 
-        # compute vocabulary
-        self._voc = voc = set()
-        # WORK HERE!!
-
-        self._V = len(voc)  # vocabulary size
+    def _generate_probs(self, relative_counts):
+        """
+        Generate probability dictionary from relative counts
+        """
+        self._probs = {}
+        for prev_token, count_vector in relative_counts.items():
+            total = sum(count_vector.values())
+            self._probs[prev_token] = {}
+            for token, count in count_vector.items():
+                self._probs[prev_token][token] =\
+                    (count + 1) / (total + self._V)
 
     def V(self):
         """Size of the vocabulary.
@@ -202,10 +215,11 @@ class AddOneNGram(NGram):
         if not prev_tokens:
             # if prev_tokens not given, assume 0-uple:
             prev_tokens = ()
-        assert len(prev_tokens) == n - 1
 
-        # WORK HERE!!
+        num = self.count(prev_tokens + (token,)) + 1
+        denom = self.count(prev_tokens) + self._V
 
+        return num / denom
 
 class InterpolatedNGram(NGram):
 
