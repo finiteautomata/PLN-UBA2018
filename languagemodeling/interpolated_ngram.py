@@ -16,7 +16,7 @@ class InterpolatedNGram(LanguageModel):
         assert n > 0
         self._n = n
 
-        held_out_sents = None
+        train_sents = held_out_sents = None
         if gamma is not None:
             # everything is training data
             train_sents = sents
@@ -29,8 +29,7 @@ class InterpolatedNGram(LanguageModel):
         print('Computing counts...')
         # WORK HERE!!
         # COMPUTE COUNTS FOR ALL K-GRAMS WITH K <= N
-
-        sents_to_count = held_out_sents or sents
+        sents_to_count = train_sents or sents
 
         self._count = dict(count_all_grams(n, sents_to_count))
         self._addone = addone
