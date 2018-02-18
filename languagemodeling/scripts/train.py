@@ -16,7 +16,7 @@ Options:
 from docopt import docopt
 import pickle
 
-from nltk.corpus import gutenberg
+import nltk
 
 from languagemodeling.ngram import NGram, AddOneNGram, InterpolatedNGram
 # from languagemodeling.ngram import NGram, AddOneNGram, InterpolatedNGram
@@ -34,7 +34,11 @@ if __name__ == '__main__':
 
     # load the data
     # WORK HERE!! LOAD YOUR TRAINING CORPUS
-    sents = gutenberg.sents(['bible-kjv.txt'])
+    train_corpus = nltk.corpus.PlaintextCorpusReader(
+        "data/",
+        ".*train\.txt",
+    )
+    sents = train_corpus.sents()
 
     # train the model
     n = int(opts['-n'])
