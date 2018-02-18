@@ -11,8 +11,7 @@ Options:
 from docopt import docopt
 import pickle
 import math
-
-from nltk.corpus import gutenberg
+import nltk
 
 
 if __name__ == '__main__':
@@ -25,8 +24,12 @@ if __name__ == '__main__':
     f.close()
 
     # load the data
-    # WORK HERE!! LOAD YOUR EVALUATION CORPUS
-    sents = gutenberg.sents('austen-persuasion.txt')
+    test_corpus = nltk.corpus.PlaintextCorpusReader(
+        "data/",
+        ".*test\.txt",
+    )
+    sents = test_corpus.sents()
+    print("Testing at {} sents".format(len(sents)))
 
     # compute the cross entropy
     log_prob = model.log_prob(sents)
