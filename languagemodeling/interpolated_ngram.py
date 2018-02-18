@@ -45,8 +45,9 @@ class InterpolatedNGram(LanguageModel):
             # use grid search to choose gamma
             min_gamma, min_p = None, float('inf')
 
-            # WORK HERE!! TRY DIFFERENT VALUES BY HAND:
-            for gamma in [100 + i * 50 for i in range(10)]:
+            values = list(range(100, 1001, 50)) + list(range(1000, 10000, 100))
+
+            for gamma in values:
                 self._gamma = gamma
                 p = self.perplexity(held_out_sents)
                 print('  {} -> {}'.format(gamma, p))
