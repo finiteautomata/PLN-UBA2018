@@ -1,7 +1,6 @@
 # https://docs.python.org/3/library/unittest.html
 from unittest import TestCase
-
-from languagemodeling.ngram import InterpolatedNGram
+from languagemodeling.interpolated_ngram import InterpolatedNGram
 
 
 class TestInterpolatedNGram(TestCase):

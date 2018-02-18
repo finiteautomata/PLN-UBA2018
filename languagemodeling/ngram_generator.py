@@ -1,5 +1,4 @@
 import numpy as np
-from .ngram import EMPTY_TOKEN
 
 class NGramGenerator(object):
 
