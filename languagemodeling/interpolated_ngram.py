@@ -33,6 +33,8 @@ class InterpolatedNGram(LanguageModel):
 
         self._count = dict(count_all_grams(n, sents_to_count))
         self._addone = addone
+
+        print('Creating models..')
         self._create_models(train_sents)
 
         # compute gamma if not given

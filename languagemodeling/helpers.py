@@ -1,6 +1,10 @@
 """Helpers module."""
 from collections import defaultdict
 
+
+BEGIN_MARKER = '<s>'
+END_MARKER = '</s>'
+
 def generate_ngrams_for_sentence(n, sentence):
     """
     Genera n-gramas y n-1 gramas

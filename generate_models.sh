@@ -10,3 +10,9 @@ for i in `seq 1 4`; do
   echo Construyendo AddOne orden $i...Salvando en $file
   python languagemodeling/scripts/train.py -m addone -n $i -o $file
 done
+
+for i in `seq 1 4`; do
+  file="models/interpolated_${i}_bible.pkl"
+  echo Construyendo Interpolated orden $i...Salvando en $file
+  python languagemodeling/scripts/train.py -m inter -n $i -o $file
+done

@@ -2,8 +2,7 @@
 from collections import defaultdict
 import math
 import pandas as pd
-from .helpers import generate_ngrams
-from . import BEGIN_MARKER, END_MARKER
+from .helpers import generate_ngrams, BEGIN_MARKER, END_MARKER
 
 class LanguageModel(object):
 
@@ -12,14 +11,39 @@ class LanguageModel(object):
 
         sent -- the sentence as a list of tokens.
         """
-        return 0.0
+        sent += [END_MARKER]
+        prev_tokens = tuple([BEGIN_MARKER] * (self._n-1))
+
+        prob = 1
+        for i in range(0, len(sent)):
+            token = sent[i]
+            next_prob = self.cond_prob(token, prev_tokens)
+            prob *= next_prob
+
+            if self._n > 1:
+                prev_tokens = prev_tokens[1:] + (token,)
+        return prob
 
     def sent_log_prob(self, sent):
         """Log-probability of a sentence.
-
         sent -- the sentence as a list of tokens.
         """
-        return -math.inf
+        sent += [END_MARKER]
+        prev_tokens = tuple([BEGIN_MARKER] * (self._n-1))
+
+        logprob = 0
+        for i in range(0, len(sent)):
+            token = sent[i]
+            next_prob = self.cond_prob(token, prev_tokens)
+            if next_prob == 0:
+                logprob = float("-inf")
+                break
+
+            logprob += math.log2(next_prob)
+
+            if self._n > 1:
+                prev_tokens = prev_tokens[1:] + (token,)
+        return logprob
 
     def log_prob(self, sents):
         result = 0.0
@@ -96,52 +120,12 @@ class NGram(LanguageModel):
             # Uso excepcion porque el sparse tira eso..
             return .0
 
-    def sent_prob(self, sent):
-        """Probability of a sentence. Warning: subject to underflow problems.
-
-        sent -- the sentence as a list of tokens.
-        """
-        sent += [END_MARKER]
-        prev_tokens = tuple([BEGIN_MARKER] * (self._n-1))
-
-        prob = 1
-        for i in range(0, len(sent)):
-            token = sent[i]
-            next_prob = self.cond_prob(token, prev_tokens)
-            prob *= next_prob
-
-            if self._n > 1:
-                prev_tokens = prev_tokens[1:] + (token,)
-        return prob
-
     def cond_prob_density(self, prev_tokens):
         """
         Returns conditional probability density on prev_tokens
         """
 
         return self._probs[prev_tokens]
-
-    def sent_log_prob(self, sent):
-        """Log-probability of a sentence.
-
-        sent -- the sentence as a list of tokens.
-        """
-        sent += [END_MARKER]
-        prev_tokens = tuple([BEGIN_MARKER] * (self._n-1))
-
-        logprob = 0
-        for i in range(0, len(sent)):
-            token = sent[i]
-            next_prob = self.cond_prob(token, prev_tokens)
-            if next_prob == 0:
-                logprob = float("-inf")
-                break
-
-            logprob += math.log2(next_prob)
-
-            if self._n > 1:
-                prev_tokens = prev_tokens[1:] + (token,)
-        return logprob
 
 
 class AddOneNGram(NGram):
