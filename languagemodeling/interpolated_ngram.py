@@ -1,6 +1,6 @@
 """InterpolatedNGram model."""
 from collections import defaultdict
-from .helpers import generate_ngrams
+from .helpers import generate_ngrams, count_all_grams
 from .ngram import LanguageModel, AddOneNGram, NGram
 
 class InterpolatedNGram(LanguageModel):
@@ -16,6 +16,7 @@ class InterpolatedNGram(LanguageModel):
         assert n > 0
         self._n = n
 
+        held_out_sents = None
         if gamma is not None:
             # everything is training data
             train_sents = sents
@@ -28,15 +29,10 @@ class InterpolatedNGram(LanguageModel):
         print('Computing counts...')
         # WORK HERE!!
         # COMPUTE COUNTS FOR ALL K-GRAMS WITH K <= N
-        count = defaultdict(int)
-        for k in range(1, n+1):
-            ngrams = generate_ngrams(k, sents)
-            for ngram in ngrams:
-                count[ngram] += 1
-            if k == 1:
-                count[()] = len(ngrams)
 
-        self._count = dict(count)
+        sents_to_count = held_out_sents or sents
+
+        self._count = dict(count_all_grams(n, sents_to_count))
         self._addone = addone
         self._create_models(train_sents)
 
@@ -94,10 +90,12 @@ class InterpolatedNGram(LanguageModel):
             # i-th term of the sum
             if i < n - 1:
                 # COMPUTE lambdaa AND cond_ml.
-                pass
+                lambdaa = self.count(prev_tokens) / (self.count(prev_tokens) + self._gamma)
+                lambdaa *= (1 - cum_lambda)
+                cond_ml = self._models[self._n-i].cond_prob(token, prev_tokens)
             else:
                 lambdaa = 1 - cum_lambda
-                cond_ml = self._models[i+1].cond_prob(token)
+                cond_ml = self._models[1].cond_prob(token)
             prob += lambdaa * cond_ml
             cum_lambda += lambdaa
 

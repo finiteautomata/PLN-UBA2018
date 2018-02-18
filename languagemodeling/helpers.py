@@ -1,5 +1,5 @@
 """Helpers module."""
-
+from collections import defaultdict
 
 def generate_ngrams_for_sentence(n, sentence):
     """
@@ -36,3 +36,13 @@ def generate_ngrams(n, sents):
         ng = generate_ngrams_for_sentence(n, sent)
         ngrams += ng
     return ngrams
+
+def count_all_grams(n, sents):
+    count = defaultdict(int)
+    for k in range(1, n+1):
+        ngrams = generate_ngrams(k, sents)
+        for ngram in ngrams:
+            count[ngram] += 1
+        if k == 1:
+            count[()] = len(ngrams)
+    return count
