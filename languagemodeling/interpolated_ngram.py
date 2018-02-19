@@ -45,7 +45,10 @@ class InterpolatedNGram(LanguageModel):
             # use grid search to choose gamma
             min_gamma, min_p = None, float('inf')
 
-            values = list(range(100, 1001, 50)) + list(range(1000, 10000, 100))
+            values = list(range(100, 1001, 50)) +\
+                list(range(1000, 10000, 100)) +\
+                list(range(10000, 20000, 1000)) +\
+                list(range(20000, 100000, 5000))
 
             for gamma in values:
                 self._gamma = gamma
@@ -102,3 +105,30 @@ class InterpolatedNGram(LanguageModel):
             cum_lambda += lambdaa
 
         return prob
+
+
+    def cond_prob_density(self, prev_tokens):
+        """
+        Returns conditional probability density on prev_tokens
+        """
+        n = self._n
+        prob_density = defaultdict(float)
+        cum_lambda = .0
+        for i in range(n):
+            # i-th term of the sum
+            model = self._models[self._n-i]
+            if i < n - 1:
+                # COMPUTE lambdaa AND cond_ml.
+                lambdaa = self.count(prev_tokens) / (self.count(prev_tokens) + self._gamma)
+                lambdaa *= (1 - cum_lambda)
+                cond_ml = model.cond_prob_density(prev_tokens)
+            else:
+                lambdaa = 1 - cum_lambda
+                cond_ml = self._models[1].cond_prob_density(())
+
+            for k, prob in cond_ml.items():
+                prob_density[k] += lambdaa * prob
+
+            cum_lambda += lambdaa
+
+        return prob_density
