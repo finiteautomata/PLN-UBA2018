@@ -7,7 +7,6 @@ class NGramGenerator(object):
         model -- n-gram model.
         """
         self._model = model
-        # WORK HERE!!
 
     def generate_sent(self):
         """Randomly generate a sentence."""
@@ -32,9 +31,19 @@ class NGramGenerator(object):
         """
         if not prev_tokens:
             prev_tokens = ()
-
-        prob_vector = self._model.cond_prob_density(prev_tokens)
-        return np.random.choice(
-            [*prob_vector.keys()],
-            p=[*prob_vector.values()]
-        )
+        try:
+            prob_vector = self._model.cond_prob_density(prev_tokens)
+            p = np.array([*prob_vector.values()])
+            return np.random.choice(
+                [*prob_vector.keys()],
+                p=p
+            )
+        except ValueError as e:
+            # Error numérico, intentamos subsanarlo
+            s = sum(p)
+            print("Error numérico. La suma de probabilidades es {}".format(s))
+            p /= s
+            return np.random.choice(
+                [*prob_vector.keys()],
+                p=p
+            )
