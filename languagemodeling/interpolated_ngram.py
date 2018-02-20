@@ -45,10 +45,8 @@ class InterpolatedNGram(LanguageModel):
             # use grid search to choose gamma
             min_gamma, min_p = None, float('inf')
 
-            values = list(range(100, 1001, 50)) +\
-                list(range(1000, 10000, 100)) +\
-                list(range(10000, 20000, 1000)) +\
-                list(range(20000, 100000, 5000))
+            values = list(range(10, 100, 5)) +\
+                list(range(100, 1001, 20))
 
             for gamma in values:
                 self._gamma = gamma
@@ -62,10 +60,11 @@ class InterpolatedNGram(LanguageModel):
             self._gamma = min_gamma
 
     def _create_models(self, sents):
-        model_class = AddOneNGram if self._addone else NGram
-        self._models = {
-            order:model_class(order, sents) for order in range(1, self._n+1)
-        }
+
+        self._models = {}
+        for order in range(1, self._n+1):
+            model_class = AddOneNGram if order == 1 and self._addone else NGram
+            self._models[order] = model_class(order, sents)
 
     def count(self, tokens):
         """Count for an n-gram or (n-1)-gram.
@@ -117,15 +116,19 @@ class InterpolatedNGram(LanguageModel):
         for i in range(n):
             # i-th term of the sum
             model = self._models[self._n-i]
-            if i < n - 1:
-                # COMPUTE lambdaa AND cond_ml.
-                lambdaa = self.count(prev_tokens) / (self.count(prev_tokens) + self._gamma)
-                lambdaa *= (1 - cum_lambda)
-                cond_ml = model.cond_prob_density(prev_tokens)
-            else:
-                lambdaa = 1 - cum_lambda
-                cond_ml = self._models[1].cond_prob_density(())
-
+            try:
+                if i < n - 1:
+                    # COMPUTE lambdaa AND cond_ml.
+                    lambdaa = self.count(prev_tokens) /\
+                        (self.count(prev_tokens) + self._gamma)
+                    lambdaa *= (1 - cum_lambda)
+                    cond_ml = model.cond_prob_density(prev_tokens)
+                else:
+                    lambdaa = 1 - cum_lambda
+                    cond_ml = self._models[1].cond_prob_density(())
+            except KeyError as e:
+                continue
+                
             for k, prob in cond_ml.items():
                 prob_density[k] += lambdaa * prob
 
