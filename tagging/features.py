@@ -14,15 +14,14 @@ def word_lower(h):
 
     h -- a history.
     """
-    # WORK HERE!! USE STRING METHOD lower()
-
+    return h.sent[h.i].lower()
 
 def prev_tags(h):
     """Feature: previous tags tuple.
 
     h -- a history.
     """
-    # WORK HERE!!
+    return h.prev_tags
 
 
 def word_istitle(h):
@@ -30,7 +29,7 @@ def word_istitle(h):
 
     h -- a history.
     """
-    # WORK HERE!! USE STRING METHOD istitle()
+    return h.sent[h.i].istitle()
 
 
 def word_isupper(h):
@@ -38,7 +37,7 @@ def word_isupper(h):
 
     h -- a history.
     """
-    # WORK HERE!! USE STRING METHOD isupper()
+    return h.sent[h.i].isupper()
 
 
 def word_isdigit(h):
@@ -46,8 +45,7 @@ def word_isdigit(h):
 
     h -- a history.
     """
-    # WORK HERE!! USE STRING METHOD isdigit()
-
+    return h.sent[h.i].isdigit()
 
 class NPrevTags(Feature):
 
@@ -63,7 +61,7 @@ class NPrevTags(Feature):
 
         h -- a history.
         """
-        # WORK HERE!!
+        return h.prev_tags[-self._n:]
 
 
 class PrevWord(Feature):
