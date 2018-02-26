@@ -2,7 +2,7 @@ from math import log2
 from numpy import exp2
 
 from featureforge.vectorizer import Vectorizer
-from sklearn.pipeline import Pipeline
+from sklearn.pipeline import make_pipeline
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.svm import LinearSVC
 from sklearn.linear_model import LogisticRegression
@@ -20,7 +20,7 @@ classifiers = {
 
 class MEMM:
 
-    def __init__(self, n, tagged_sents, clf='svm'):
+    def __init__(self, n, tagged_sents, clf=LinearSVC()):
         """
         n -- order of the model.
         tagged_sents -- list of sentences, each one being a list of pairs.
@@ -28,13 +28,24 @@ class MEMM:
         """
         # 1. build the pipeline
         # WORK HERE!!
-        self._pipeline = pipeline = None
+
+        self._n = n
+
+        vect = Vectorizer([
+            word_lower,
+            word_istitle,
+        ])
+
+        self._pipeline = make_pipeline(
+            vect,
+            clf,
+        )
 
         # 2. train it
         print('Training classifier...')
         X = self.sents_histories(tagged_sents)
         y = self.sents_tags(tagged_sents)
-        pipeline.fit(list(X), list(y))
+        self._pipeline.fit(list(X), list(y))
 
         # 3. build known words set
         # WORK HERE!!
@@ -55,7 +66,7 @@ class MEMM:
 
         tagged_sent -- the tagged sentence (a list of pairs (word, tag)).
         """
-        prev_tags = ('<s>',) * (self.n - 1)
+        prev_tags = ('<s>',) * (self._n - 1)
         sent = [w for w, _ in tagged_sent]
         for i, (w, t) in enumerate(tagged_sent):
             yield History(sent, prev_tags, i)
@@ -84,14 +95,25 @@ class MEMM:
 
         sent -- the sentence.
         """
-        # WORK HERE!!
+
+        prev = ('<s>',) * (self._n - 1)
+        tags = []
+
+        for i, w in enumerate(sent):
+            h = History(sent, prev, i)
+            tag = self.tag_history([h])
+            tags.append(tag)
+            prev = (prev + (tag,))[1:]
+
+        return tags
 
     def tag_history(self, h):
         """Tag a history.
 
         h -- the history.
         """
-        # WORK HERE!!
+        import ipdb; ipdb.set_trace()
+        return self._pipeline.predict(h)[0]
 
     def unknown(self, w):
         """Check if a word is unknown for the model.
