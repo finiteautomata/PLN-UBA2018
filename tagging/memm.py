@@ -7,15 +7,13 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.svm import LinearSVC
 from sklearn.linear_model import LogisticRegression
 
-from tagging.features import (History, word_lower, word_istitle, word_isupper,
-                              word_isdigit, NPrevTags, PrevWord, NextWord)
+from tagging.features import (
+    History, word_lower, word_istitle, word_isupper, prev_tags,
+    word_isdigit, NPrevTags, PrevWord, NextWord,
+    TagStartsWith
+)
 
 
-classifiers = {
-    'maxent': LogisticRegression,
-    'mnb': MultinomialNB,
-    'svm': LinearSVC,
-}
 
 
 class MEMM:
@@ -32,10 +30,16 @@ class MEMM:
         self._n = n
         tagged_sents = list(tagged_sents)
 
-        vect = Vectorizer([
-            word_lower,
-            word_istitle,
-        ])
+        features = [
+            word_lower, word_istitle, word_isupper, word_isdigit,
+            NPrevTags(n),
+            NextWord(word_lower), NextWord(word_istitle),
+            NextWord(word_isupper), NextWord(word_isdigit),
+            PrevWord(word_lower), PrevWord(word_istitle),
+            PrevWord(word_isupper), PrevWord(word_isdigit),
+        ]
+
+        vect = Vectorizer(features)
 
         self._pipeline = make_pipeline(
             vect,
@@ -43,13 +47,14 @@ class MEMM:
         )
 
         # 2. train it
-        print('Training classifier...')
-        X = self.sents_histories(tagged_sents)
-        y = self.sents_tags(tagged_sents)
-        self._pipeline.fit(list(X), list(y))
+        X = list(self.sents_histories(tagged_sents))
+        y = list(self.sents_tags(tagged_sents))
+        print(len(X), len(X[0]))
+        self._pipeline.fit(X, y)
 
         # 3. build known words set
-        # WORK HERE!!
+        self._vocabulary = {tok for sent in tagged_sents for (tok, tag) in sent}
+
 
     def sents_histories(self, tagged_sents):
         """
@@ -120,4 +125,4 @@ class MEMM:
 
         w -- the word.
         """
-        # WORK HERE!!
+        return w not in self._vocabulary

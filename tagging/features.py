@@ -47,6 +47,20 @@ def word_isdigit(h):
     """
     return h.sent[h.i].isdigit()
 
+
+class TagStartsWith(Feature):
+    """
+    Feature: does the -i tag starts with prefix?
+    """
+    def __init__(self, i, prefix):
+        self._i = i
+        self._prefix = prefix
+
+    def _evaluate(self, h):
+        tag = prev_tags(h)[-self._i]
+
+        return tag.startswith(self._prefix)
+
 class NPrevTags(Feature):
 
     def __init__(self, n):

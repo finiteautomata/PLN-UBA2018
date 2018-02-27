@@ -44,7 +44,7 @@ if __name__ == '__main__':
     sents = list(corpus.tagged_sents())
 
     if opts['-f']:
-        sents = np.random.choice(list(sents), int(opts['-f']))
+        sents = list(sents)[:int(opts['-f'])]
         print("Testing only in {} sentences".format(len(sents)))
 
     # tag

@@ -93,20 +93,65 @@ class TestMEMM(TestCase):
         tags = list(model.sents_tags(self.tagged_sents))
         self.assertEqual(tags, 'D N V N P D N V N P'.split())
 
-    def test_tag_history(self):
-        models = [MEMM(i, self.tagged_sents) for i in [1, 2, 3]]
+
+    def test_tag_history_n1(self):
+        model = MEMM(1, self.tagged_sents)
 
         result = 'D N V N P'.split()
 
-        for model in models:
-            hs = model.sent_histories(self.tagged_sents[0])
-            for hist, r in zip(hs, result):
-                self.assertEqual(model.tag_history(hist), r)
-    def test_tag(self):
-        models = [MEMM(i, self.tagged_sents) for i in [1, 2, 3]]
+        hs = model.sent_histories(self.tagged_sents[0])
+        for hist, r in zip(hs, result):
+            self.assertEqual(model.tag_history(hist), r)
+
+
+    def test_tag_history_n1(self):
+        model = MEMM(1, self.tagged_sents)
+
+        result = 'D N V N P'.split()
+
+        hs = model.sent_histories(self.tagged_sents[0])
+        for hist, r in zip(hs, result):
+            self.assertEqual(model.tag_history(hist), r)
+
+    def test_tag_history_n2(self):
+        model = MEMM(2, self.tagged_sents)
+
+        result = 'D N V N P'.split()
+
+        hs = model.sent_histories(self.tagged_sents[0])
+        for hist, r in zip(hs, result):
+            self.assertEqual(model.tag_history(hist), r)
+
+
+    def test_tag_history_n3(self):
+        model = MEMM(3, self.tagged_sents)
+
+        result = 'D N V N P'.split()
+
+        hs = model.sent_histories(self.tagged_sents[0])
+        for hist, r in zip(hs, result):
+            self.assertEqual(model.tag_history(hist), r)
+
+    def test_tag_n1(self):
+        model = MEMM(1, self.tagged_sents)
 
         sent = 'el gato come pescado .'.split()
         result = 'D N V N P'.split()
 
-        for model in models:
-            self.assertEqual(model.tag(sent), result)
+        self.assertEqual(model.tag(sent), result)
+
+    def test_tag_n2(self):
+        model = MEMM(2, self.tagged_sents)
+
+        sent = 'el gato come pescado .'.split()
+        result = 'D N V N P'.split()
+
+        self.assertEqual(model.tag(sent), result)
+
+    def test_tag_n3(self):
+        model = MEMM(3, self.tagged_sents)
+
+        sent = 'el gato come pescado .'.split()
+        result = 'D N V N P'.split()
+
+        self.assertEqual(model.tag(sent), result)
