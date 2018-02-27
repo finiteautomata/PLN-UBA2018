@@ -1,17 +1,19 @@
 """Evaulate a tagger.
 
 Usage:
-  eval.py -i <file> [-c]
+  eval.py -i <file> [-c] [-f <num>]
   eval.py -h | --help
 
 Options:
   -c            Show confusion matrix.
   -i <file>     Tagging model file.
   -h --help     Show this screen.
+  -f <num>      Test only in num sents
 """
 from docopt import docopt
 import pickle
 import sys
+import numpy as np
 from collections import defaultdict
 
 from tagging.ancora import SimpleAncoraCorpusReader
@@ -34,13 +36,19 @@ if __name__ == '__main__':
     model = pickle.load(f)
     f.close()
 
+
     # load the data
     print("Loading corpus...")
     files = '3LB-CAST/.*\.tbf\.xml'
     corpus = SimpleAncoraCorpusReader('data/ancora/', files)
     sents = list(corpus.tagged_sents())
 
+    if opts['-f']:
+        sents = np.random.choice(list(sents), int(opts['-f']))
+        print("Testing only in {} sentences".format(len(sents)))
+
     # tag
+    print(len(sents))
     print("Evaluating...")
 
     hits, total = 0, 0
