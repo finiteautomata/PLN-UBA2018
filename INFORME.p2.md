@@ -3,7 +3,7 @@
 Alumno : Juan Manuel Pérez
 
 
-## Ejercicio 1: Estadísticas Ancora
+## Ancora corpus
 
 En este ejercicio, calculamos algunas estadísticas sobre el corpus Ancora, que reportamos a continuación
 
@@ -40,4 +40,50 @@ En este ejercicio, calculamos algunas estadísticas sobre el corpus Ancora, que 
 |3  |	180	|0.39 |	de, la, ., un, no|
 |4  |	23	|0.05 |	que, a, dos, este, fue|
 |5  |	5	|0.01 |	mismo, cinco, medio, ocho, vista|
+
 |6  |	3	|0.01 |	una, como, uno|
+
+## Features utilizados
+
+De cada historia generada, extrajimos las siguientes features:
+
+- La palabra actual, próxima y previa en minúsculas
+- ¿Es la palabra actual, próxima y previa un título?
+- ¿Está la palabra actual, próxima y previa en mayúsculas?
+- ¿Es la palabra actual, próxima y previa un dígito?
+
+A su vez, también nos quedamos con las etiquetas POS previamente calculadas.
+
+## Clasificadores entrenados
+
+Para hacer el etiquetado POS de las oraciones, usamos los siguientes clasificadores:
+
+- Baseline: para cada palabra, asignamos el POS tag más frecuente en el conjunto de entrenamiento. Por defecto, devolvemos que es un sustantivo común.
+- Max Entropy (Regresión logística)
+- Multinomial Naive Bayes
+- SVM con kernel lineal
+
+Para etiquetar secuencias, usamos un algoritmo goloso en el cual nos quedamos a cada paso con la etiqueta de mayor probabilidad.
+
+## Resultados
+
+Entrenamos cada clasificador con 13886 sentencias, y lo testeamos sobre cerca de 500. Los resultados son los siguientes
+
+| Clasificador       | Acc. Global    | Acc. vocabulario   | Acc. OOV    | Tiempo  |
+|:-------------------|:---------------|:-------------------|:------------|:--------|
+| Baseline           | 87.86%         | 95.24%             | 19.72       | 3.83s   |
+| MaxEnt(n=1)        | 92.07%         | 95.27%             | 61.39%      | 7.82s   |
+| MaxEnt(n=2)        | 91.28%         | 94.48%             | 60.75%      | 8.65s   |
+| MaxEnt(n=3)        | 91.44%         | 94.98%             | 58.90%      | 9.35s   |
+| MaxEnt(n=4)        | 91.92%         | 95.31%             | 62.54%      | 9.21s   |
+| MultinomialNB(n=1) | 74.90%         | 77.92%             | 46.58%      | 440s    |
+| MultinomialNB(n=2) | 72.80%         | 75.90%             | 45.09%      | 419s    |
+| MultinomialNB(n=4) | 72.44%         | 75.34%             | 46.60%      | 394s    |
+| SVM(n=1)           | 96.01%         | 98.46%             | 59.16%      | 7.69s   |
+| SVM(n=2)           | 95.99%         | 98.40%             | 59.58%      | 8.26s   |
+| SVM(n=3)           | 96.03%         | 98.44%             | 59.75%      | 7.52s   |
+| SVM(n=4)           | 96.11%         | 98.51%             | 60.08%      | 8.61s   |
+
+Como podemos ver, los mejores clasificadores son los SVM, y también los más rápidos. Los clasificadores Naive Bayes tardan mucho en evaluar, y obtienen una performance bastante pobre.
+
+Aún así, esta performance dista de ser óptima ya que recogimos pocas features y usamos un algoritmo que no es exacto. Queda como trabajo futuro implementar nuevas features, probar otros métodos de clasificación (redes neuronales) y utilizar el algoritmo de Viterbi.
