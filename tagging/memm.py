@@ -20,7 +20,7 @@ classifiers = {
 
 class MEMM:
 
-    def __init__(self, n, tagged_sents, clf=LinearSVC()):
+    def __init__(self, n, tagged_sents, clf=LogisticRegression()):
         """
         n -- order of the model.
         tagged_sents -- list of sentences, each one being a list of pairs.
@@ -30,6 +30,7 @@ class MEMM:
         # WORK HERE!!
 
         self._n = n
+        tagged_sents = list(tagged_sents)
 
         vect = Vectorizer([
             word_lower,
@@ -101,7 +102,7 @@ class MEMM:
 
         for i, w in enumerate(sent):
             h = History(sent, prev, i)
-            tag = self.tag_history([h])
+            tag = self.tag_history(h)
             tags.append(tag)
             prev = (prev + (tag,))[1:]
 
@@ -112,7 +113,7 @@ class MEMM:
 
         h -- the history.
         """
-        return self._pipeline.predict(h)[0]
+        return self._pipeline.predict([h])[0]
 
     def unknown(self, w):
         """Check if a word is unknown for the model.

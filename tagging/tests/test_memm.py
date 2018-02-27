@@ -100,9 +100,8 @@ class TestMEMM(TestCase):
 
         for model in models:
             hs = model.sent_histories(self.tagged_sents[0])
-            for h, r in zip(hs, result):
-                self.assertEqual(model.tag_history(h), r)
-
+            for hist, r in zip(hs, result):
+                self.assertEqual(model.tag_history(hist), r)
     def test_tag(self):
         models = [MEMM(i, self.tagged_sents) for i in [1, 2, 3]]
 
