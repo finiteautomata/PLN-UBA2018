@@ -14,7 +14,7 @@ import pickle
 import sys
 from collections import defaultdict
 
-from ancora import SimpleAncoraCorpusReader
+from tagging.ancora import SimpleAncoraCorpusReader
 
 
 def progress(msg, width=None):
@@ -35,11 +35,14 @@ if __name__ == '__main__':
     f.close()
 
     # load the data
+    print("Loading corpus...")
     files = '3LB-CAST/.*\.tbf\.xml'
-    corpus = SimpleAncoraCorpusReader('ancora/ancora-3.0.1es/', files)
+    corpus = SimpleAncoraCorpusReader('data/ancora/', files)
     sents = list(corpus.tagged_sents())
 
     # tag
+    print("Evaluating...")
+
     hits, total = 0, 0
     unk_hits, unk_total = 0, 0
     error_count = defaultdict(lambda: defaultdict(int))

@@ -23,7 +23,7 @@ if __name__ == '__main__':
     corpus = SimpleAncoraCorpusReader('data/ancora/')
     sents = corpus.tagged_sents()
 
-    # compute the statistics
+    # compute the statistics}
     stats = Stats(sents)
 
     print('Basic Statistics')

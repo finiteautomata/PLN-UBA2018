@@ -112,7 +112,6 @@ class MEMM:
 
         h -- the history.
         """
-        import ipdb; ipdb.set_trace()
         return self._pipeline.predict(h)[0]
 
     def unknown(self, w):

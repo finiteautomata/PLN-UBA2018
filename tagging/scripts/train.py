@@ -20,7 +20,7 @@ Options:
 from docopt import docopt
 import pickle
 
-from ancora import SimpleAncoraCorpusReader
+from tagging.ancora import SimpleAncoraCorpusReader
 
 from tagging.baseline import BaselineTagger, BadBaselineTagger
 # from tagging.memm import MEMM
@@ -38,10 +38,12 @@ if __name__ == '__main__':
 
     # load the data
     files = 'CESS-CAST-(A|AA|P)/.*\.tbf\.xml'
-    corpus = SimpleAncoraCorpusReader('ancora/ancora-3.0.1es/', files)
+    print("Loading corpus...")
+    corpus = SimpleAncoraCorpusReader('data/ancora/', files)
     sents = corpus.tagged_sents()
 
     # train the model
+    print("Training model...")
     model_class = models[opts['-m']]
     model = model_class(sents)
 
@@ -58,6 +60,7 @@ if __name__ == '__main__':
     #     model = model_class(sents)
 
     # save it
+    print("Saving model...")
     filename = opts['-o']
     f = open(filename, 'wb')
     pickle.dump(model, f)
