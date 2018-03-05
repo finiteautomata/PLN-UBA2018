@@ -28,11 +28,11 @@ if __name__ == '__main__':
 
     # load corpus
     if not opts['--final']:
-        reader = InterTASSReader('TASS/InterTASS/TASS2017_T1_development.xml')
+        reader = InterTASSReader('data/TASS/InterTASS/TASS2017_T1_development.xml')
     else:
         reader = InterTASSReader(
-            'TASS/InterTASS/TASS2017_T1_test.xml',
-            'TASS/InterTASS/TASS2017_T1_test_res.qrel')
+            'data/TASS/InterTASS/TASS2017_T1_test.xml',
+            'data/TASS/InterTASS/TASS2017_T1_test_res.qrel')
     X, y_true = list(reader.X()), list(reader.y())
 
     # classify
