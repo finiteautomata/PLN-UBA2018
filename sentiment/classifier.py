@@ -3,7 +3,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.svm import LinearSVC
 from sklearn.linear_model import LogisticRegression
-
+from nltk.tokenize import TweetTokenizer
 
 classifiers = {
     'maxent': LogisticRegression,
@@ -19,8 +19,9 @@ class SentimentClassifier(object):
         clf -- classifying model, one of 'svm', 'maxent', 'mnb' (default: 'svm').
         """
         self._clf = clf
+        tknzr = TweetTokenizer()
         self._pipeline = pipeline = Pipeline([
-            ('vect', CountVectorizer()),
+            ('vect', CountVectorizer(tokenizer=tknzr.tokenize)),
             ('clf', classifiers[clf]()),
         ])
 
