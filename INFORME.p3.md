@@ -68,6 +68,32 @@ A continuación, vemos los resultados de estos tests sobre un conjunto de valida
 
 Podemos observar que, observando **f1** y **accuracy** el mejor clasificador es el Näive Bayes utilizando como features sólo el tokenizado especial para tweets de `nltk`.
 
+## Curvas de aprendizaje
+
+En todas las curvas, podemos observar un patrón similar: mientras el F1 suele aumentar o estancarse levemente, el accuracy tiende a tener un pico con pocos datos, y luego bajar. Este fenómeno puede deberse a que el clasificador, con pocos datos, tiende a utilizar la clase mayoritaria (P) lo cual minimiza la tasa de error pero con baja precision y recall para cada una de las clases
+
+### Base
+![](notebooks/images/base_acc.png)
+![](notebooks/images/base_f1.png)
+### Tweet Tokenizer
+
+![](notebooks/images/tw_tknzr_acc.png)
+![](notebooks/images/tw_tknzr_f1.png)
+
+### Tweet Tokenizer + Normalization
+![](notebooks/images/tw_tknzr+norm_acc.png)
+![](notebooks/images/tw_tknzr+norm_f1.png)
+
+### Binary
+
+![](notebooks/images/binary_acc.png)
+![](notebooks/images/binary_f1.png)
+
+### stopwords
+
+![](notebooks/images/stopwords_acc.png)
+![](notebooks/images/stopwords_f1.png)
+
 
 Analizando este clasificador sobre el conjunto de test obtenemos:
 
