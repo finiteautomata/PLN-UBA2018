@@ -94,8 +94,70 @@ En todas las curvas, podemos observar un patrón similar: mientras el F1 suele a
 ![](notebooks/images/stopwords_acc.png)
 ![](notebooks/images/stopwords_f1.png)
 
+## Features más relevantes
 
-Analizando este clasificador sobre el conjunto de test obtenemos:
+Para observar los features más relevantes, utilizamos un clasificador de regresión logística y los features extraídos por el *TweetTokenizer*.
+
+Los resultados obtenidos fueron:
+
+```
+N:
+	portada ;-) enhorabuena besos buena ([-1.79455119 -1.79385749 -1.32522904 -1.32330086 -1.31996872])
+	denuncia odio recortes muertos triste ([1.61085566 1.67503365 1.73063649 2.00134694 2.35689936])
+NEU:
+	parados cree portada toda cont ([-1.07308983 -1.04328449 -0.99198165 -0.98635968 -0.94534415])
+	expectación decidirán huelga @palomacervilla broma ([1.26534759 1.29802823 1.32196835 1.32926172 1.40175607])
+NONE:
+	;-) feliz gracias gran mal ([-2.3014078  -1.89779197 -1.78641882 -1.74520424 -1.61971695])
+	periódico jugar @juandevi reunión portada ([1.25258114 1.33123844 1.35833665 1.45095676 2.25098602])
+P:
+	culpa triste portada urdangarin odio ([-1.46644099 -1.41013482 -1.37790014 -1.28119956 -1.20576253])
+	felicidades gracias homenaje enhorabuena ;-) ([1.90229751 1.9487667  2.04844774 2.31960857 2.37838754])
+```
+
+Podemos observar que hay un problema con esta extracción de features: utiliza handles (`@juandevi, @palomacervilla`) como una feature relevante en NONE. Claramente, esto significa que está generalizando erróneamente.
+
+Por otro lado, tienen sentido las palabras con pesos positivs y negativos tanto para P y N. Para NEU y NONE, estas palabras son un poco menos claras.
+
+### Ejemplo de Tweet
+
+```
+@Sakura_Abril Ow
+Bueno, no pasa nada, cuando puedas confirmarlo, estoy aquí 😊
+Y si no pudieras de cosplay pero sí a la expo, +
+```
+Veamos los pesos que reportan. Como vemos, "bueno" a secas suma mucho para P, así como el emoji feliz.
+
+```
++ [ 0.21166957  0.02943818 -0.1805304  -0.16154715]
+, [-0.08546664 -0.0203392  -0.06837049  0.08972665]
+@sakura_abril [-0.17543811 -0.22603359 -0.0067455   0.41811734]
+a [-0.02856551  0.10424848 -0.14330023  0.01322859]
+aquí [-0.35901045 -0.02002835  0.04100514  0.18960446]
+bueno [-0.76706165 -0.02381811 -0.29472122  0.93705745]
+confirmarlo [-0.17543811 -0.22603359 -0.0067455   0.41811734]
+cosplay [-0.02941664 -0.23643822 -0.08919284  0.35250999]
+cuando [ 0.70450087 -0.07313396 -0.24487917 -0.5872877 ]
+de [ 0.13807588 -0.07258769 -0.20564828 -0.03271813]
+estoy [ 0.12341334  0.62364231 -0.79786906  0.08153221]
+expo [ 0.11096973 -0.32431564 -0.30251508  0.53112599]
+la [ 0.1725178   0.03800616 -0.36194174  0.02483806]
+nada [-0.29786422  0.36198971 -0.53273244  0.29814501]
+no [ 0.79010499  0.11231838 -0.5113652  -0.70129678]
+ow [-0.17543811 -0.22603359 -0.0067455   0.41811734]
+pasa [-0.18640421  0.65190294 -0.15817745 -0.03822046]
+pero [ 3.71790958e-04  9.71877709e-01 -6.41471121e-01 -4.54635502e-01]
+pudieras [ 0.05549941 -0.37494453 -0.00707205  0.08682954]
+puedas [-0.31076982 -0.03434519  0.12895135  0.27770601]
+si [-0.07618001  0.62368716  0.05859711 -0.39541633]
+sí [ 9.85926424e-05  5.92319874e-01  1.55913444e-02 -3.42777552e-01]
+y [ 0.04956735 -0.17641103 -0.28179037  0.12943351]
+😊 [-0.17543811 -0.22603359 -0.0067455   0.41811734]
+```
+
+## Resultados sobre test
+
+Analizando tw_tknzr_MNB sobre el conjunto de test obtenemos:
 
 ```
 Sentiment P:
