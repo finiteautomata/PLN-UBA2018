@@ -35,11 +35,11 @@ class Evaluator(object):
             if pred > 0.0:
                 prec = float(hits) / pred * 100.0
             else:
-                prec = 100.0
+                prec = 0.0
             if true > 0.0:
                 rec = float(hits) / true * 100.0
             else:
-                rec = 100.0
+                rec = 0.0
             metrics[label] = Metrics(hits, pred, true, prec, rec)
             precs.append(prec)
             recs.append(rec)
@@ -53,6 +53,12 @@ class Evaluator(object):
 
     def macro_f1(self):
         return f1(self._macro_prec, self._macro_rec)
+
+    def macro_prec(self):
+        return self._macro_prec
+
+    def macro_rec(self):
+        return self._macro_rec
 
     def print_results(self):
         labels = self._labels
