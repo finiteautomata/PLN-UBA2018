@@ -155,7 +155,7 @@ y [ 0.04956735 -0.17641103 -0.28179037  0.12943351]
 😊 [-0.17543811 -0.22603359 -0.0067455   0.41811734]
 ```
 
-## Resultados sobre test
+## Resultados y discusión
 
 Analizando tw_tknzr_MNB sobre el conjunto de test obtenemos:
 
@@ -190,5 +190,7 @@ NONE	139	130	1	4
 En primer lugar, podemos observar que el clasificador tiene una performance (en accuracy y precision también) sensiblemente mejor que el algoritmo de clase mayoritaria, alrededor del 40%. Con lo cual, efectivamente está aprendiendo de los datos.
 
 Podemos observar que la mejor performance del clasificador es sobre las clases *P* y *N*, y principalmente para la clase *NEU* es particularmente malo. Esto puede ser producto de ser una clase con esencialmente mucho ruido, y desbalanceada respecto de las primeras dos.
+
+Intentamos aplicar PCA (usando TruncatedSVD) sobre la matriz obtenida para mejorar los resultados, pero no observamos en principio mejoras.
 
 Como trabajo a futuro, queda mejorar la ingeniería de features y utilizar otros algoritmos de clasificación para mejorar su performance
